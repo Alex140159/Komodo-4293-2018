@@ -11,6 +11,8 @@
 
 package org.usfirst.frc0.MyRobot;
 
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -49,6 +51,11 @@ public class Robot extends TimedRobot {
         // pointers. Bad news. Don't move it.
         oi = new OI();
 
+        CameraServer server = CameraServer.getInstance();
+        UsbCamera camera = server.startAutomaticCapture(0);
+        camera.setResolution(640, 480);
+        //camera.setResolution(896, 504);
+        
         // Add commands to Autonomous Sendable Chooser
         chooser.addDefault("Autonomous Command", new AutonomousCommand());
 
