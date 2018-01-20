@@ -10,8 +10,9 @@
 
 package org.usfirst.frc0.MyRobot.commands;
 
-import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc0.MyRobot.Robot;
+
+import edu.wpi.first.wpilibj.command.Command;
 
 /**
  *

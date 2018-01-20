@@ -11,6 +11,8 @@
 
 package org.usfirst.frc0.MyRobot;
 
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -18,7 +20,14 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.vision.VisionThread;
+
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 import org.usfirst.frc0.MyRobot.commands.*;
+import org.usfirst.frc0.MyRobot.grip.TestPipeline;
 import org.usfirst.frc0.MyRobot.subsystems.*;
 
 /**
@@ -37,6 +46,14 @@ public class Robot extends TimedRobot {
     public static OI oi;
     public static DriveSystem driveSystem;
 
+	private static final int IMG_WIDTH = 640;
+	private static final int IMG_HEIGHT = 480;
+	
+	private VisionThread visionThread;
+	private double centerX = 0.0;
+	
+	private final Object imgLock = new Object();
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -50,11 +67,19 @@ public class Robot extends TimedRobot {
         // constructed yet. Thus, their requires() statements may grab null
         // pointers. Bad news. Don't move it.
         oi = new OI();
-
-        CameraServer server = CameraServer.getInstance();
-        UsbCamera camera = server.startAutomaticCapture(0);
-        camera.setResolution(640, 480);
-        //camera.setResolution(896, 504);
+        
+        UsbCamera camera = CameraServer.getInstance().startAutomaticCapture(0);
+        camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+        
+        visionThread = new VisionThread(camera, new TestPipeline(), pipeline -> {
+            if (!pipeline.filterContoursOutput().isEmpty()) {
+                Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+                synchronized (imgLock) {
+                    centerX = r.x + (r.width / 2);
+                }
+            }
+        });
+        visionThread.start();
         
         // Add commands to Autonomous Sendable Chooser
         chooser.addDefault("Autonomous Command", new AutonomousCommand());

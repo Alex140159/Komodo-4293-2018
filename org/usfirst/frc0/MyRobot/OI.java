@@ -34,7 +34,6 @@ public class OI {
     private Button setArcade2Button;
 
     public OI() {
-    	System.out.println("OI Init");
         leftJoystick = new Joystick(RobotMap.leftJoystickPort);
         rightJoystick = new Joystick(RobotMap.rightJoystickPort);
         
