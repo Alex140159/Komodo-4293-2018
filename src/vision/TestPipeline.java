@@ -1,4 +1,4 @@
-package org.usfirst.frc0.MyRobot.grip;
+package vision;
 
 import java.io.File;
 import java.io.FileWriter;
